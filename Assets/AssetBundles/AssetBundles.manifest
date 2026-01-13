@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 2994762078
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: neptune_splat
+      Dependencies: {}
