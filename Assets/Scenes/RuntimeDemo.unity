@@ -150,7 +150,7 @@ Transform:
   m_GameObject: {fileID: 204285687}
   serializedVersion: 2
   m_LocalRotation: {x: 0.42261827, y: 0, z: 0, w: 0.9063079}
-  m_LocalPosition: {x: 0.33, y: 1.72, z: 0}
+  m_LocalPosition: {x: 4, y: 0.98, z: -11.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -377,10 +377,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 1073406562}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -767,6 +767,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 397035270}
   m_CullTransparentMesh: 1
+--- !u!1 &503728540
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 503728541}
+  m_Layer: 0
+  m_Name: GenesisScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &503728541
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 503728540}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1509830950}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &526325802
 GameObject:
   m_ObjectHideFlags: 0
@@ -1855,10 +1886,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 903641807}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -2060,18 +2091,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ead0e3f8131727438450f5d61c6dfd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelParent: {fileID: 350402717}
+  composer: {fileID: 1509830952}
   loginUrl: https://sso.platform.myw.ai/realms/MywaiInternal/protocol/openid-connect/token
   clientId: mywaineptune
-  defaultEmail: 
-  defaultPassword: 
+  loginUIRoot: {fileID: 386461643}
   emailInput: {fileID: 326771254}
   passwordInput: {fileID: 1073406562}
   statusText: {fileID: 731282440}
-  glbUrl: https://genesis.platform.myw.ai/api/Storage/getBlob/generic/638805866793325249_1744989856145_hirth_01_04_l_textured_mesh_glb.glb
-  gltfAsset: {fileID: 1175413474}
+  defaultEmail: 
+  defaultPassword: 
   runtimeSplatLoader: {fileID: 1449312545}
-  loginUIRoot: {fileID: 386461643}
 --- !u!4 &1175413473
 Transform:
   m_ObjectHideFlags: 0
@@ -2171,13 +2200,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449312542}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7494445, y: -0.19950077, z: 0.63125753, w: -0.0068076025}
-  m_LocalPosition: {x: 0, y: 0.85, z: 12.77}
+  m_LocalRotation: {x: 0.7114129, y: 0, z: 0, w: 0.7027742}
+  m_LocalPosition: {x: 4.1, y: 1.56, z: -2.344}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 13.985, y: 102.072, z: 198.483}
+  m_LocalEulerAnglesHint: {x: 90.7, y: 0, z: 0}
 --- !u!114 &1449312545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2190,7 +2219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56968625db2bb44fae36978d66ddb46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  splatBundleUrl: 'https://genesis.platform.myw.ai/api/Storage/getBlob/assetsplats/neptune_splat.assetbundle '
+  splatBundleUrl: 'https://genesis.platform.myw.ai/api/Storage/getBlob/assetsplats/hirth_splat.assetbundle '
   splatRenderer: {fileID: 1449312543}
 --- !u!1 &1454232874
 GameObject:
@@ -2203,6 +2232,7 @@ GameObject:
   - component: {fileID: 1454232875}
   - component: {fileID: 1454232877}
   - component: {fileID: 1454232876}
+  - component: {fileID: 1454232878}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -2271,6 +2301,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1454232874}
   m_CullTransparentMesh: 1
+--- !u!114 &1454232878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454232874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 087b3248e726e6c4fabab91416851973, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emailInput: {fileID: 326771254}
+  passwordInput: {fileID: 1073406562}
+  loginButton: {fileID: 903641807}
 --- !u!1 &1470224168
 GameObject:
   m_ObjectHideFlags: 0
@@ -2930,6 +2975,81 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 0}
   m_ButtonPressPoint: 0.5
+--- !u!1 &1509830949
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1509830950}
+  - component: {fileID: 1509830952}
+  - component: {fileID: 1509830951}
+  m_Layer: 0
+  m_Name: GLBSceneComposer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1509830950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509830949}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.8533406, y: -3.862886, z: 21.922}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 503728541}
+  - {fileID: 1669507937}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1509830951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509830949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40565a5cf59e83244b24c62dc5518c66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1509830952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509830949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 694b1cb075ee3d540bb7ad071ca45a1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneJson: "[\r\n  {\r\n    \"name\": \"1_638741873109299132_Industrial_Robotic_Ar_0203134745_texture.glb\",\r\n   
+    \"entityId\": 1,\r\n    \"interaction\": {\r\n      \"eventName\": \"equipment-clicked\",\r\n     
+    \"eventPayload\": {\r\n        \"equipmentId\": 1\r\n      }\r\n    },\r\n   
+    \"loadType\": \"LOD\",\r\n    \"path\": \"equipmentmodels/1_638741873109299132_Industrial_Robotic_Ar_0203134745_texture.glb\",\r\n   
+    \"entityName\": \"Kuka KR 20 R3100\",\r\n    \"position\": [\r\n      -4.165365671648009,\r\n     
+    1.275002100208172,\r\n      -2.361967616633152\r\n    ],\r\n    \"scale\": [\r\n     
+    1,\r\n      1,\r\n      1\r\n    ],\r\n    \"rotation\": [\r\n      0,\r\n     
+    88.9139770959239,\r\n      0\r\n    ]\r\n  },\r\n  {\r\n    \"name\": \"1_638980248633679379_3dmodels-opt.glb\",\r\n   
+    \"entityId\": 1,\r\n    \"interaction\": null,\r\n    \"loadType\": \"LOD\",\r\n   
+    \"path\": \"equipmentmodels/1_638980248633679379_3dmodels-opt.glb\",\r\n    \"entityName\":
+    \"Area 1\",\r\n    \"position\": [\r\n      0,\r\n      0,\r\n      0\r\n   
+    ],\r\n    \"scale\": [\r\n      1,\r\n      1,\r\n      1\r\n    ],\r\n    \"rotation\":
+    [\r\n      0,\r\n      0,\r\n      0\r\n    ]\r\n  }\r\n]"
+  baseUrl: https://genesis.platform.myw.ai/api/Storage/getBlob/
+  glbLoader: {fileID: 1509830951}
+  glbRoot: {fileID: 2133599612}
 --- !u!1 &1607277190
 GameObject:
   m_ObjectHideFlags: 0
@@ -2964,6 +3084,37 @@ Transform:
   - {fileID: 1470224169}
   m_Father: {fileID: 526325805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1669507936
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1669507937}
+  m_Layer: 0
+  m_Name: RuntimeGlbURL
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1669507937
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669507936}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1509830950}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1760250783
 GameObject:
   m_ObjectHideFlags: 0
@@ -2993,7 +3144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8450f73721d5901499999308bee36a2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  splatUrl: generic/639005439553169808_1764947154077_7k_gs_nobg_hq.ply
+  splatUrl: equipmentmodels/hirth.ply
   localSplatPath: 
   downloadedBytes: 0
 --- !u!4 &1760250785
@@ -3816,6 +3967,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &2133599611
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2133599612}
+  m_Layer: 0
+  m_Name: GLBRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2133599612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133599611}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.8533406, y: -3.862886, z: 21.922}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3827,3 +4009,5 @@ SceneRoots:
   - {fileID: 734489935}
   - {fileID: 1760250785}
   - {fileID: 1449312544}
+  - {fileID: 2133599612}
+  - {fileID: 1509830950}

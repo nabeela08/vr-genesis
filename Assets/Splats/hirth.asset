@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33b71fae31e6c7d438e8566dc713e666, type: 3}
+  m_Name: hirth
+  m_EditorClassIdentifier: 
+  m_FormatVersion: 20231020
+  m_SplatCount: 93479
+  m_BoundsMin: {x: -0.50773835, y: -0.601431, z: 1.0171541}
+  m_BoundsMax: {x: 0.60524994, y: 0.45738378, z: 1.2315367}
+  m_DataHash:
+    serializedVersion: 2
+    Hash: be067ae849d58a8716943f06612bd1ce
+  m_PosFormat: 0
+  m_ScaleFormat: 0
+  m_SHFormat: 0
+  m_ColorFormat: 0
+  m_PosData: {fileID: 4900000, guid: 4ce24223979dfde42a61f03a5e9499e7, type: 3}
+  m_ColorData: {fileID: 4900000, guid: cf8884295baf4bb4482a2a96f6bbcaa7, type: 3}
+  m_OtherData: {fileID: 4900000, guid: f9497208a70764d46a4e6ce722dbc891, type: 3}
+  m_SHData: {fileID: 4900000, guid: 1b7219772fc81954a98a0acc5c276efd, type: 3}
+  m_ChunkData: {fileID: 0}
+  m_Cameras: []

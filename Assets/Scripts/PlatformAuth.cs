@@ -1,59 +1,94 @@
 using System;
 using System.Collections;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
-using UnityEngine.UI;      
-using GLTFast;
 
 public class PlatformAuth : MonoBehaviour
 {
-    private byte[] downloadedGlbData;
-    [SerializeField] private Transform modelParent;
+    public static string AccessToken;
+
+    [SerializeField] private GenesisGLBSceneComposer composer;
 
     [Header("SSO Settings")]
-    [SerializeField] private string loginUrl;   
-    [SerializeField] private string clientId;   
-
-    [Header("Login Credentials (for auto-test or default values)")]
-    [SerializeField] private string defaultEmail;
-    [SerializeField] private string defaultPassword;
+    [SerializeField] private string loginUrl;   // token endpoint
+    [SerializeField] private string clientId;
 
     [Header("UI References")]
+    [SerializeField] private GameObject loginUIRoot;
     public TMP_InputField emailInput;
     public TMP_InputField passwordInput;
     public TextMeshProUGUI statusText;
 
-    [Header("Protected GLB Settings")]
-    [SerializeField] private string glbUrl;     
-    [SerializeField] private GltfAsset gltfAsset;
+    [Header("Default values (optional)")]
+    [SerializeField] private string defaultEmail;
+    [SerializeField] private string defaultPassword;
 
     [Header("Splat Runtime Loader")]
     [SerializeField] private RuntimeSplatLoader runtimeSplatLoader;
 
-    [Header("Login UI Root (hide after success)")]
-    [SerializeField] private GameObject loginUIRoot;
-
     private string accessToken;
+    private string refreshToken;
+    private long accessTokenExpiryUnix;
 
     [Serializable]
     private class TokenResponse
     {
         public string access_token;
-        public int expires_in;  // optional, depends on response
+        public int expires_in;
+        public string refresh_token;
+        public int refresh_expires_in;
     }
 
-    // Called from Login Button onClick
+    private const string PREF_ACCESS = "access_token";
+    private const string PREF_REFRESH = "refresh_token";
+    private const string PREF_EXPIRY = "access_expiry";
+
+    private void Start()
+    {
+        if (loginUIRoot != null) loginUIRoot.SetActive(true);
+        SetStatus("Please login.");
+    }
+
+    private void TryAutoLogin()
+    {
+        string savedAccess = PlayerPrefs.GetString(PREF_ACCESS, "");
+        string savedRefresh = PlayerPrefs.GetString(PREF_REFRESH, "");
+        long expiry = 0;
+        long.TryParse(PlayerPrefs.GetString(PREF_EXPIRY, "0"), out expiry);
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        // Access token still valid
+        if (!string.IsNullOrEmpty(savedAccess) && now < expiry)
+        {
+            accessToken = savedAccess;
+            AccessToken = savedAccess;
+
+            Debug.Log("[Auth] Using saved access token (still valid).");
+
+            OnAuthenticated();
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(savedRefresh))
+        {
+            Debug.Log("[Auth] Access expired, trying refresh token...");
+            StartCoroutine(RefreshTokenCoroutine(savedRefresh));
+        }
+        else
+        {
+            Debug.Log("[Auth] No saved session. Show login UI.");
+            SetStatus("Please login.");
+            if (loginUIRoot != null) loginUIRoot.SetActive(true);
+        }
+    }
+
+    // Button onClick
     public void OnLoginButtonClicked()
     {
-        string email = emailInput != null && !string.IsNullOrEmpty(emailInput.text)
-            ? emailInput.text
-            : defaultEmail;
-
-        string password = passwordInput != null && !string.IsNullOrEmpty(passwordInput.text)
-            ? passwordInput.text
-            : defaultPassword;
+        string email = (emailInput != null && !string.IsNullOrEmpty(emailInput.text)) ? emailInput.text : defaultEmail;
+        string password = (passwordInput != null && !string.IsNullOrEmpty(passwordInput.text)) ? passwordInput.text : defaultPassword;
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
@@ -61,14 +96,13 @@ public class PlatformAuth : MonoBehaviour
             return;
         }
 
-        StartCoroutine(LoginAndLoadGlb(email, password));
+        StartCoroutine(LoginCoroutine(email, password));
     }
 
-    private IEnumerator LoginAndLoadGlb(string email, string password)
+    private IEnumerator LoginCoroutine(string email, string password)
     {
         SetStatus("Logging in...");
 
-        // Build form payload (same as AuthService)
         WWWForm form = new WWWForm();
         form.AddField("client_id", clientId);
         form.AddField("grant_type", "password");
@@ -79,229 +113,133 @@ public class PlatformAuth : MonoBehaviour
         {
             request.certificateHandler = new BypassCertificateHandler();
             request.disposeCertificateHandlerOnDispose = true;
-            
             request.SetRequestHeader("Accept", "application/json");
 
             yield return request.SendWebRequest();
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Login failed: {request.responseCode} - {request.error}\n{request.downloadHandler.text}");
-                SetStatus("Login failed: " + request.error);
+                Debug.LogError($"[Auth] Login failed: {request.responseCode} - {request.error}\n{request.downloadHandler.text}");
+                SetStatus("Login failed. Check credentials.");
+                if (loginUIRoot != null) loginUIRoot.SetActive(true);
                 yield break;
             }
 
-            string json = request.downloadHandler.text;
-            Debug.Log("Login response: " + json);
-
-            //Parse JSON to get access_token 
-            TokenResponse tokenResponse;
-            try
-            {
-                tokenResponse = JsonUtility.FromJson<TokenResponse>(json);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("Error parsing token JSON: " + ex.Message);
-                SetStatus("Error parsing token.");
-                yield break;
-            }
+            var json = request.downloadHandler.text;
+            var tokenResponse = JsonUtility.FromJson<TokenResponse>(json);
 
             if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.access_token))
             {
-                Debug.LogError("Token response did not contain access_token. Check JSON field names.");
-                SetStatus("No access_token found in response.");
+                Debug.LogError("[Auth] No access_token in response.");
+                SetStatus("Login failed (no access token).");
+                if (loginUIRoot != null) loginUIRoot.SetActive(true);
                 yield break;
             }
 
-            accessToken = tokenResponse.access_token;
-            Debug.Log("Got access token: " + accessToken);
-            SetStatus("Login successful. Loading 3D model...");
+            SaveTokens(tokenResponse);
+            Debug.Log("[Auth] Login success. Tokens saved.");
 
+            OnAuthenticated();
         }
-
-        // Use accessToken to load GLB via glTFast 
-        if (gltfAsset == null)
-        {
-            Debug.LogError("GltfAsset reference is missing.");
-            SetStatus("Error: GltfAsset missing.");
-            yield break;
-        }
-
-        if (string.IsNullOrWhiteSpace(glbUrl))
-        {
-            Debug.LogError("glbUrl is empty.");
-            SetStatus("Error: GLB URL is empty.");
-            yield break;
-        }
-
-        yield return StartCoroutine(TestRawGlbDownload());
-
-        if (downloadedGlbData == null || downloadedGlbData.Length == 0)
-{
-    Debug.LogError("[GLB] Downloaded GLB data is empty.");
-    SetStatus("Error: GLB download failed.");
-    yield break;
-}
-
-// ---- Use glTFast directly from bytes ----
-SetStatus("Parsing GLB...");
-
-var gltfImport = new GLTFast.GltfImport();
-
-// Start async load from the byte array
-var loadTask = gltfImport.Load(downloadedGlbData);
-
-// Wait for the task to finish inside coroutine
-while (!loadTask.IsCompleted)
-{
-    yield return null;
-}
-
-if (!loadTask.Result)
-{
-    Debug.LogError("[GLB] glTFast failed to parse GLB.");
-    SetStatus("Error: Failed to parse 3D model.");
-    yield break;
-}
-// ---- Choose a scene to instantiate ----
-int sceneCount = gltfImport.SceneCount;
-Debug.Log($"[GLB] sceneCount = {sceneCount}");
-
-if (sceneCount == 0)
-{
-    Debug.LogError("[GLB] GLB has no scenes; cannot instantiate.");
-    SetStatus("Error: 3D model has no scenes.");
-    yield break;
-}
-
-// Just use scene 0
-int sceneIndexToUse = 0;
-
-SetStatus("Instantiating 3D model...");
-
-Transform parent = modelParent != null ? modelParent : this.transform;
-
-var instTask = gltfImport.InstantiateSceneAsync(parent, sceneIndexToUse);
-
-while (!instTask.IsCompleted)
-{
-    yield return null;
-}
-
-if (!instTask.Result)
-{
-    Debug.LogError("[GLB] Failed to instantiate 3D model.");
-    SetStatus("Error: Failed to instantiate 3D model.");
-    yield break;
-}
-
-// Hide login UI when glb loaded
-if (loginUIRoot != null)
-{
-    loginUIRoot.SetActive(false);
-}
-
-Debug.Log("[GLB] GLB loaded and instantiated successfully!");
-SetStatus("Model loaded!");
-
-// ---- After GLB is ready, load the splat from platform ----
-
-// ---- After GLB is ready, load the splat from platform ----
-if (runtimeSplatLoader != null)
-{
-    StartCoroutine(runtimeSplatLoader.LoadSplatFromPlatform(accessToken));
-}
-else
-{
-    Debug.LogWarning("[SPLAT] runtimeSplatLoader reference is not set on PlatformAuth.");
-}
-
-// if (splatLoader != null)
-// {
-//     StartCoroutine(splatLoader.LoadSplatFromPlatform(accessToken));
-// }
-// else
-// {
-//     Debug.LogWarning("[SPLAT] splatLoader reference is not set on PlatformAuth.");
-// }
-
-
-        // ---- Download SPLAT file from platform ----
-        // if (splatLoader != null)
-        // {
-        //     SetStatus("Downloading splat file...");
-        //     yield return StartCoroutine(splatLoader.DownloadSplat(accessToken));
-
-        //     string localSplatPath = splatLoader.GetLocalSplatPath();
-        //     if (!string.IsNullOrEmpty(localSplatPath))
-        //     {
-        //         Debug.Log("[SPLAT] Splat file downloaded successfully: " + localSplatPath);
-        //     }
-        //     else
-        //     {
-        //         Debug.LogError("[SPLAT] Splat download failed or path is empty.");
-        //     }
-        // }
-        // else
-        // {
-        //     Debug.LogWarning("[SPLAT] No SplatLoader assigned, skipping splat download.");
-        // }
-
-        // Hide login UI when glb loaded
-        if (loginUIRoot != null)
-        {
-            loginUIRoot.SetActive(false);
-        }
-
-        Debug.Log("[GLB] GLB loaded and instantiated successfully!");
-        SetStatus("Model loaded!");
-
     }
 
-    //ADDITIONAL
-    private IEnumerator TestRawGlbDownload()
+    private IEnumerator RefreshTokenCoroutine(string refresh)
     {
-        Debug.Log("[TEST] Starting raw GLB download test...");
-        using (UnityWebRequest req = UnityWebRequest.Get(glbUrl))
+        SetStatus("Restoring session...");
+
+        WWWForm form = new WWWForm();
+        form.AddField("client_id", clientId);
+        form.AddField("grant_type", "refresh_token");
+        form.AddField("refresh_token", refresh);
+
+        using (UnityWebRequest request = UnityWebRequest.Post(loginUrl, form))
         {
-            req.SetRequestHeader("Authorization", "Bearer " + accessToken);
-            // Still use bypass for now (same as login)
-            req.certificateHandler = new BypassCertificateHandler();
-            req.disposeCertificateHandlerOnDispose = true;
+            request.certificateHandler = new BypassCertificateHandler();
+            request.disposeCertificateHandlerOnDispose = true;
+            request.SetRequestHeader("Accept", "application/json");
 
-            yield return req.SendWebRequest();
+            yield return request.SendWebRequest();
 
-            Debug.Log($"[TEST] result={req.result}, code={req.responseCode}, error={req.error}");
-            if (req.result == UnityWebRequest.Result.Success)
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                downloadedGlbData = req.downloadHandler.data;
-                Debug.Log($"[TEST] bytes downloaded = {downloadedGlbData.Length}");
+                Debug.LogError($"[Auth] Refresh failed: {request.responseCode} - {request.error}\n{request.downloadHandler.text}");
+                SetStatus("Session expired. Please login again.");
+                if (loginUIRoot != null) loginUIRoot.SetActive(true);
+                yield break;
             }
-            else
+
+            var json = request.downloadHandler.text;
+            var tokenResponse = JsonUtility.FromJson<TokenResponse>(json);
+
+            if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.access_token))
             {
-                downloadedGlbData = null;
-                Debug.Log("[TEST] no data downloaded");
+                Debug.LogError("[Auth] Refresh response missing access_token.");
+                SetStatus("Session expired. Please login again.");
+                if (loginUIRoot != null) loginUIRoot.SetActive(true);
+                yield break;
             }
+
+            SaveTokens(tokenResponse);
+            Debug.Log("[Auth] Session restored. Tokens saved.");
+
+            OnAuthenticated();
         }
     }
 
-    //for unity to not verify SSL certificate
+    private void SaveTokens(TokenResponse tokenResponse)
+    {
+        accessToken = tokenResponse.access_token;
+        refreshToken = tokenResponse.refresh_token;
+
+        AccessToken = accessToken;
+
+        accessTokenExpiryUnix =
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            + tokenResponse.expires_in
+            - 30; // safety buffer
+
+        PlayerPrefs.SetString(PREF_ACCESS, accessToken);
+        PlayerPrefs.SetString(PREF_REFRESH, refreshToken);
+        PlayerPrefs.SetString(PREF_EXPIRY, accessTokenExpiryUnix.ToString());
+        PlayerPrefs.Save();
+    }
+
+    private void OnAuthenticated()
+    {
+        SetStatus("Authenticated. Loading scene...");
+
+    if (loginUIRoot != null) loginUIRoot.SetActive(false);
+
+    //splat loader
+    if (runtimeSplatLoader != null)
+    {
+        Debug.Log("[SPLAT] Starting runtime splat load after auth...");
+        StartCoroutine(runtimeSplatLoader.LoadSplatFromPlatform(accessToken));
+    }
+    else
+    {
+        Debug.LogWarning("[SPLAT] runtimeSplatLoader reference not set on PlatformAuth.");
+    }
+    
+    if (composer != null)
+    {
+        composer.StartComposeAfterLogin();
+    }
+    else
+    {
+        Debug.LogWarning("[Auth] Composer reference not set in Inspector.");
+    }
+    }
+
+    // DEV ONLY – bypass SSL
     private class BypassCertificateHandler : CertificateHandler
     {
-        protected override bool ValidateCertificate(byte[] certificateData)
-        {
-            // DEV ONLY – always trust
-            return true;
-        }
+        protected override bool ValidateCertificate(byte[] certificateData) => true;
     }
 
     private void SetStatus(string msg)
     {
-        if (statusText != null)
-        {
-            statusText.text = msg;
-        }
+        if (statusText != null) statusText.text = msg;
         Debug.Log(msg);
     }
 }

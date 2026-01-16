@@ -22,7 +22,6 @@ public class SplatLoader : MonoBehaviour
             yield break;
         }
 
-        // File name try from URL
         string fileName = Path.GetFileName(splatUrl);
         if (string.IsNullOrEmpty(fileName))
         {
@@ -35,10 +34,7 @@ public class SplatLoader : MonoBehaviour
 
         using (UnityWebRequest req = UnityWebRequest.Get(splatUrl))
         {
-            // SAME header as GLB:
             req.SetRequestHeader("Authorization", "Bearer " + accessToken);
-
-            // Same SSL bypass as login (dev only)
             req.certificateHandler = new BypassCertificateHandler();
             req.disposeCertificateHandlerOnDispose = true;
 

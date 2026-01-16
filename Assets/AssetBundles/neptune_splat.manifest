@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 4282341389
+CRC: 4186520934
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a04c1f2744e3999dbdbad948cc84ab4a
+    Hash: e4a079d496e501328a76ad86388b86ab
   TypeTreeHash:
     serializedVersion: 2
     Hash: 83b5d7a381412d83df9fb97447a72d69
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a04c1f2744e3999dbdbad948cc84ab4a
+    Hash: e4a079d496e501328a76ad86388b86ab
 HashAppended: 0
 ClassTypes:
 - Class: 49
@@ -22,5 +22,14 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: UnityEngine.CoreModule
   ClassName: UnityEngine.Hash128
 Assets:
+- Assets/Splats/639005439553169808_1764947154077_7k_gs_nobg_hq_oth.bytes
+- Assets/Splats/639005439553169808_1764947154077_7k_gs_nobg_hq_shs.bytes
 - Assets/Splats/639005439553169808_1764947154077_7k_gs_nobg_hq.asset
+- Assets/Splats/639005439553169808_1764947154077_7k_gs_nobg_hq_pos.bytes
+- Assets/Splats/hirth_shs.bytes
+- Assets/Splats/hirth_oth.bytes
+- Assets/Splats/hirth_pos.bytes
+- Assets/Splats/639005439553169808_1764947154077_7k_gs_nobg_hq_col.bytes
+- Assets/Splats/hirth.asset
+- Assets/Splats/hirth_col.bytes
 Dependencies: []

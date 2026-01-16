@@ -35,7 +35,6 @@ public class RuntimeSplatLoader : MonoBehaviour
 
         using (UnityWebRequest req = UnityWebRequestAssetBundle.GetAssetBundle(splatBundleUrl))
         {
-            // Same auth as GLB
             req.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
             yield return req.SendWebRequest();
@@ -53,7 +52,6 @@ public class RuntimeSplatLoader : MonoBehaviour
                 yield break;
             }
 
-            // Find the GaussianSplatAsset inside the bundle
             GaussianSplatAsset[] splatAssets = bundle.LoadAllAssets<GaussianSplatAsset>();
             if (splatAssets == null || splatAssets.Length == 0)
             {
@@ -63,7 +61,6 @@ public class RuntimeSplatLoader : MonoBehaviour
 
             var splatAsset = splatAssets[0];
 
-            // --- Find any instance field of type GaussianSplatAsset (name can vary between versions) ---
             var rendererType = typeof(GaussianSplatRenderer);
             FieldInfo assetField = null;
 

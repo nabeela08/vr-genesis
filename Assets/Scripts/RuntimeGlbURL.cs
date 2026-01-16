@@ -1,64 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using GLTFast;
 
 public class RuntimeGlbURL : MonoBehaviour
-{[Header("Full URL of the GLB (https://...)")]
-    [SerializeField] private string glbUrl;
-
-    [Header("Spawn point (XR camera or XR Origin)")]
-    [SerializeField] private Transform spawnPoint;
-
-    private GameObject instanceRoot;
-
-    private async void Start()
+{
+    // Loads ONE GLB with token and places it using given transforms
+    public async Task<GameObject> LoadOneGlb(
+        string fullUrl,
+        string bearerToken,
+        string objectName,
+        Vector3 position,
+        Vector3 rotationEuler,
+        Vector3 scale,
+        Transform parent = null
+    )
     {
-        Debug.Log("[RuntimeGlbUrl] Start()");
+        // Wrapper root 
+        var wrapper = new GameObject(string.IsNullOrEmpty(objectName) ? "GLB_Instance" : objectName);
 
-        if (string.IsNullOrEmpty(glbUrl))
-        {
-            Debug.LogError("[RuntimeGlbUrl] glbUrl is empty");
-            return;
-        }
+        if (parent != null)
+            wrapper.transform.SetParent(parent, true);
 
-        var gltf = new GltfImport();
+        wrapper.transform.position = position;
+        wrapper.transform.rotation = Quaternion.Euler(rotationEuler);
+        wrapper.transform.localScale = scale;
 
-        Debug.Log("[RuntimeGlbUrl] Loading from: " + glbUrl);
+        // IMPORTANT: protected download provider
+        var downloadProvider = new BearerTokenDownloadProvider(bearerToken);
+        var gltf = new GltfImport(downloadProvider);
 
-        bool loaded = await gltf.Load(glbUrl);
+        Debug.Log("[RuntimeGlbURL] Loading from: " + fullUrl);
 
-        Debug.Log("[RuntimeGlbUrl] Load finished. Success = " + loaded);
-
+        bool loaded = await gltf.Load(fullUrl);
         if (!loaded)
         {
-            Debug.LogError("[RuntimeGlbUrl] Loading glTF FAILED");
-            return;
+            Debug.LogError("[RuntimeGlbURL] Load FAILED: " + fullUrl);
+            Destroy(wrapper);
+            return null;
         }
 
-        // Parent object created to store model
-        instanceRoot = new GameObject("RuntimeGlbInstance");
-
-        // Spawn infront of main camera
-        if (spawnPoint != null)
-        {
-            instanceRoot.transform.position =
-                spawnPoint.position + spawnPoint.forward * 1.5f; 
-            instanceRoot.transform.rotation = spawnPoint.rotation;
-        }
-        else
-        {
-            instanceRoot.transform.position = Vector3.zero;
-        }
-
-    
-        bool instantiated = await gltf.InstantiateMainSceneAsync(instanceRoot.transform);
-
-        Debug.Log("[RuntimeGlbUrl] Instantiate finished. Success = " + instantiated);
-
+        bool instantiated = await gltf.InstantiateMainSceneAsync(wrapper.transform);
         if (!instantiated)
         {
-            Debug.LogError("[RuntimeGlbUrl] Instantiation FAILED");
+            Debug.LogError("[RuntimeGlbURL] Instantiate FAILED: " + fullUrl);
+            Destroy(wrapper);
+            return null;
         }
+
+        return wrapper;
     }
 }

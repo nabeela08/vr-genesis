@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using System.IO;
 
 public class BuildSelectedSplatBundle
 {
@@ -9,11 +10,10 @@ public class BuildSelectedSplatBundle
         var selected = Selection.activeObject;
         if (selected == null)
         {
-            Debug.LogError("[SPLAT BUNDLE] No asset selected. Select a Gaussian Splat Asset in the Project window.");
+            Debug.LogError("[SPLAT BUNDLE] No asset selected. Select a GaussianSplatAsset in the Project window.");
             return;
         }
 
-        // Get path to the selected asset
         string assetPath = AssetDatabase.GetAssetPath(selected);
         if (string.IsNullOrEmpty(assetPath))
         {
@@ -21,21 +21,21 @@ public class BuildSelectedSplatBundle
             return;
         }
 
-        string bundleName = "neptune_splat";
+        string baseName   = Path.GetFileNameWithoutExtension(assetPath);
+        string bundleName = baseName.ToLower() + "_splat";
 
         string outputPath = "Assets/AssetBundles";
-        if (!System.IO.Directory.Exists(outputPath))
+        if (!Directory.Exists(outputPath))
         {
-            System.IO.Directory.CreateDirectory(outputPath);
+            Directory.CreateDirectory(outputPath);
         }
 
         AssetBundleBuild build = new AssetBundleBuild
         {
             assetBundleName = bundleName,
-            assetNames = new[] { assetPath }
+            assetNames      = new[] { assetPath }
         };
 
-        // Build for Windows for now (editor + Quest link testing)
         BuildPipeline.BuildAssetBundles(
             outputPath,
             new[] { build },
@@ -43,6 +43,6 @@ public class BuildSelectedSplatBundle
             BuildTarget.StandaloneWindows64
         );
 
-        Debug.Log($"[SPLAT BUNDLE] Built bundle '{bundleName}' with asset '{assetPath}' to: {outputPath}");
+        Debug.Log($"[SPLAT BUNDLE] Built bundle '{bundleName}' with asset '{assetPath}'");
     }
 }
