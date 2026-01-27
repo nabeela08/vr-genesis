@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Networking;
 using TMPro;
 
@@ -48,6 +49,8 @@ public class PlatformAuth : MonoBehaviour
     {
         if (loginUIRoot != null) loginUIRoot.SetActive(true);
         SetStatus("Please login.");
+
+        Debug.Log($"GFX API: {SystemInfo.graphicsDeviceType} | {SystemInfo.graphicsDeviceName} | {SystemInfo.graphicsDeviceVersion}");
     }
 
     private void TryAutoLogin()
